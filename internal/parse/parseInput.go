@@ -3,56 +3,64 @@ package parse
 import (
 	"fmt"
 	"math/big"
-	"strconv"
 	"strings"
+
+	"github.com/jndaf31/term-in-algebra/internal/matrix"
 )
 
-func BuildMatrix(cIn []string, inputBuff *[]string) (resMatrix [][]*big.Rat, err error) {
-
+// BuildMatrix
+/*
+Appends input slice to current input buffer and returns immediately, until
+termination symbol is detected. Then, slices the buffer into a slice of string
+slices (string matrix). Creates and allocates a matrix of the same size but with
+pointers to big.Rat (rational fractional numbers) structs inside. Converts and
+assigns the string matrix data directly to big.Rat types using the .SetString
+method. Finally, clears the input buffer and returns the big.Rat input matrix.
+*/
+func BuildMatrix(cIn []string, inputBuff *[]string) (matrix.Matrix, error) {
 	// Append input to buffer
 	*inputBuff = append(*inputBuff, cIn...)
 
 	// Check for matrix termination signal in the input buffer.
 	// Since it is not in this loop, return.
-	if len(*inputBuff) > 0 && (*inputBuff)[len(*inputBuff)-1] != "///" {
-		return nil, nil
+	if len(*inputBuff) > 0 &&
+		(*inputBuff)[len(*inputBuff)-1] != "///" {
+		return matrix.Matrix{}, nil
 	}
+	toParse := *inputBuff
+	*inputBuff = nil
 
 	// Slice finished string matrix.
-	strMatrix, err := SliceSlicer(*inputBuff)
+	strMatrix, err := SliceSlicer(toParse)
 	if err != nil {
-		return nil, err
+		return matrix.Matrix{}, err
 	}
 
-	// Allocate each element in each row
-	resMatrix = make([][]*big.Rat, len(strMatrix))
+	// Allocate each element or result matrix in each row
+	resMatrix := make([][]*big.Rat, len(strMatrix))
 	for i, row := range strMatrix {
 		resMatrix[i] = make([]*big.Rat, len(row))
 		for j, val := range row {
 			// Direct assignment of the string numeric value to fraction.
 			r, ok := new(big.Rat).SetString(val)
 			if !ok {
-				return nil, fmt.Errorf("invalid number, r: %v, c: %v", i+1, j+1)
+				return matrix.Matrix{},
+					fmt.Errorf("invalid number, r: %v, c: %v", i+1, j+1)
 			}
 			resMatrix[i][j] = r
 		}
 	}
-	*inputBuff = []string{}
-	return resMatrix, nil
-	/*		DEBUGGING BLOCK FOR PRINTING STRARRAY
-	for i, row := range strMatrix {
-	fmt.Printf("[ ")
-	for j, val := range row {
-	fmt.Printf("%s ", val)
+
+	Matrix, err := matrix.New(resMatrix)
+	if err != nil {
+		return matrix.Matrix{}, err
 	}
-	fmt.Printf("]\n")
-	}
-	*/
+	return Matrix, nil
 }
 
 // SliceSlicer
 /*
-Slices the input string slices into one slice per row, delimited by "/".
+Slices the input string slices into one slice per row, delimited by "|".
 Creates an 'm * n' matrix of strings with 'n' rows of 'm' elements each.
 */
 func SliceSlicer(inputSlice []string) ([][]string, error) {
@@ -66,37 +74,28 @@ func SliceSlicer(inputSlice []string) ([][]string, error) {
 		case "":
 			continue
 		case "|", "///":
+			// Append the special characters and start the row over
 			stringMatrix = append(stringMatrix, row)
 			row = nil
 		default:
 			row = append(row, val)
 		}
 	}
-
-	matrixLen := len(stringMatrix[0])
-	for _, row := range stringMatrix[1:] {
-		if len(row) != matrixLen {
-			return [][]string{}, fmt.Errorf("invalid input, all rows must have an equal number of elements")
-		}
-	}
-
 	return stringMatrix, nil
-}
-
-// Compute if each input is numeric
-func toFloat64(txt string) (float64, error) {
-	return strconv.ParseFloat(txt, 64)
 }
 
 // CleanInput
 /*
 Initial input processing. Separates values by whitespace, only accepts numeric
-values, except for "/" which is used as a row separation indicator.
-Creates a slice of numbers and "/" characters equal to n-1 number of rows.
-Ex.: [ 123 1234 / 456 4567 ].
+values, except for "|" which is used as a row separation indicator.
+Creates a slice of numbers and "|" characters equal to n-1 number of rows.
+Ex.: [ 123 1234 | 456 4567 ].
 */
 func CleanInput(inputText string) ([]string, error) {
 	var outputBuff []string
+	if strings.Contains(inputText, "|") {
+		inputText = strings.Replace(inputText, "|", " | ", -1)
+	}
 	for txt := range strings.FieldsSeq(inputText) {
 		if strings.Contains(txt, "///") {
 			outputBuff = append(outputBuff, strings.Replace(txt, "///", "", -1), "///")
@@ -106,8 +105,8 @@ func CleanInput(inputText string) ([]string, error) {
 			outputBuff = append(outputBuff, strings.Replace(txt, "|", "", -1), "|")
 			continue
 		}
-		if _, err := toFloat64(txt); err != nil {
-			return []string{}, err
+		if _, ok := new(big.Rat).SetString(txt); !ok {
+			return []string{}, fmt.Errorf("invalid input: non numeric")
 		}
 		outputBuff = append(outputBuff, txt)
 	}
