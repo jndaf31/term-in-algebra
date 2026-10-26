@@ -76,7 +76,7 @@ See Part 4 of the math reference for the full list of v2 candidates.
 Planned Go layout:
 
 ```text
-cmd/tia/          entry point (REPL + one-shot CLI)
+cmd/         entry point (REPL + CLI)
 internal/matrix/  matrix type and arithmetic (big.Rat)
 internal/ops/     operations that return a result plus steps
 internal/parse/   matrix and command input
