@@ -31,8 +31,8 @@ func StartRepl(in *Inputs) {
 
 		switch cmd {
 		case "?":
-			fmt.Println("input1: ", in.MatrixInputs[0].Data)
-			fmt.Println("input2: ", in.MatrixInputs[1].Data)
+			fmt.Println("input1: ", in.MatrixInputs[0].GetData())
+			fmt.Println("input2: ", in.MatrixInputs[1].GetData())
 			fmt.Println("input buffer: ", inputBuff)
 			fmt.Print("> ")
 			continue
@@ -64,14 +64,15 @@ func StartRepl(in *Inputs) {
 			continue
 		}
 
-		if mat.Data == nil {
+		if mat.Rows() == 0 {
 			fmt.Print("> ")
 			continue
 		}
-		in.MatrixInputs[idx].Data = mat.Data
+		in.MatrixInputs[idx] = mat
+
 		fmt.Printf("Current input1: %v \nCurrent input2: %v \n",
-			in.MatrixInputs[0].Data,
-			in.MatrixInputs[1].Data)
+			in.MatrixInputs[0].GetData(),
+			in.MatrixInputs[1].GetData())
 		fmt.Print("> ")
 		idx++
 	}

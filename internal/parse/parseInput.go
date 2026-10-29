@@ -51,7 +51,7 @@ func BuildMatrix(cIn []string, inputBuff *[]string) (matrix.Matrix, error) {
 		}
 	}
 
-	Matrix, err := matrix.New(resMatrix)
+	Matrix, err := matrix.NewMatrix(resMatrix)
 	if err != nil {
 		return matrix.Matrix{}, err
 	}
