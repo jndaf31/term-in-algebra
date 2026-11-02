@@ -19,21 +19,43 @@ func (m Matrix) Cols() int {
 	return m.cols
 }
 
+// PrintMatrix - prints the formatted matrix to the console.
+func (m Matrix) PrintMatrix() {
+	var numMatrix = make([][]float64, m.rows)
+
+	// FIXME weird bug here
+	for i, row := range m.data {
+		numMatrix[i] = make([]float64, m.cols)
+		for j, val := range row {
+			v, _ := val.Float64()
+
+			numMatrix[i][j] = v
+		}
+	}
+	for _, row := range numMatrix {
+		fmt.Printf("%e\n", row)
+	}
+}
+
+// GetData - return a copy of the data block (equivalent to applying .GetValue()
+// to every element)
 func (m Matrix) GetData() [][]*big.Rat {
 	var dataBlock = make([][]*big.Rat, m.rows)
 	for i, row := range m.data {
 		dataBlock[i] = make([]*big.Rat, m.cols)
-		for j, _ := range row {
+		for j := range row {
 			dataBlock[i][j] = m.GetValue(i, j)
 		}
 	}
 	return dataBlock
 }
 
+// GetValue - Returns the numeric value of the element ar (row, col).
 func (m Matrix) GetValue(row, col int) *big.Rat {
 	return new(big.Rat).Set(m.data[row][col])
 }
 
+// NewMatrix - Returns a new Matrix object with the given values assigned to it.
 func NewMatrix(data [][]*big.Rat) (Matrix, error) {
 	if len(data) == 0 || len(data[0]) == 0 {
 		return Matrix{},

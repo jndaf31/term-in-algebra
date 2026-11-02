@@ -1,4 +1,4 @@
-package repl
+package main
 
 import (
 	"bufio"
@@ -31,8 +31,10 @@ func StartRepl(in *Inputs) {
 
 		switch cmd {
 		case "?":
-			fmt.Println("input1: ", in.MatrixInputs[0].GetData())
-			fmt.Println("input2: ", in.MatrixInputs[1].GetData())
+			fmt.Println("input1: ")
+			in.MatrixInputs[0].PrintMatrix()
+			fmt.Println("input2: ")
+			in.MatrixInputs[1].PrintMatrix()
 			fmt.Println("input buffer: ", inputBuff)
 			fmt.Print("> ")
 			continue
@@ -65,14 +67,15 @@ func StartRepl(in *Inputs) {
 		}
 
 		if mat.Rows() == 0 {
-			fmt.Print("> ")
+			fmt.Print(inputBuff, "> ")
 			continue
 		}
 		in.MatrixInputs[idx] = mat
 
-		fmt.Printf("Current input1: %v \nCurrent input2: %v \n",
-			in.MatrixInputs[0].GetData(),
-			in.MatrixInputs[1].GetData())
+		fmt.Println("Current input1: ")
+		in.MatrixInputs[0].PrintMatrix()
+		fmt.Println("Current input2: ")
+		in.MatrixInputs[1].PrintMatrix()
 		fmt.Print("> ")
 		idx++
 	}

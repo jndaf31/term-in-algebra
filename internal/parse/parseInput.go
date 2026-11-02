@@ -8,15 +8,13 @@ import (
 	"github.com/jndaf31/term-in-algebra/internal/matrix"
 )
 
-// BuildMatrix
-/*
-Appends input slice to current input buffer and returns immediately, until
-termination symbol is detected. Then, slices the buffer into a slice of string
-slices (string matrix). Creates and allocates a matrix of the same size but with
-pointers to big.Rat (rational fractional numbers) structs inside. Converts and
-assigns the string matrix data directly to big.Rat types using the .SetString
-method. Finally, clears the input buffer and returns the big.Rat input matrix.
-*/
+// BuildMatrix - Appends input slice to current input buffer and returns
+// immediately, until termination symbol is detected. Then, slices the buffer
+// into a slice of string slices (string matrix). Creates and allocates a matrix
+// of the same size but with pointers to big.Rat (rational fractional numbers)
+// structs inside. Converts and assigns the string matrix data directly to
+// big.Rat types using the .SetString method. Finally, clears the input buffer
+// and returns the big.Rat input matrix.
 func BuildMatrix(cIn []string, inputBuff *[]string) (matrix.Matrix, error) {
 	// Append input to buffer
 	*inputBuff = append(*inputBuff, cIn...)
@@ -58,11 +56,9 @@ func BuildMatrix(cIn []string, inputBuff *[]string) (matrix.Matrix, error) {
 	return Matrix, nil
 }
 
-// SliceSlicer
-/*
-Slices the input string slices into one slice per row, delimited by "|".
-Creates an 'm * n' matrix of strings with 'n' rows of 'm' elements each.
-*/
+// SliceSlicer - Slices the input string slices into one slice per row,
+// delimited by "|". Creates an 'm * n' matrix of strings with 'n' rows of 'm'
+// elements each.
 func SliceSlicer(inputSlice []string) ([][]string, error) {
 	var stringMatrix [][]string
 	var row []string
@@ -84,13 +80,10 @@ func SliceSlicer(inputSlice []string) ([][]string, error) {
 	return stringMatrix, nil
 }
 
-// CleanInput
-/*
-Initial input processing. Separates values by whitespace, only accepts numeric
-values, except for "|" which is used as a row separation indicator.
-Creates a slice of numbers and "|" characters equal to n-1 number of rows.
-Ex.: [ 123 1234 | 456 4567 ].
-*/
+// CleanInput - Initial input processing. Separates values by whitespace, only
+// accepts numeric values, except for "|" which is used as a row separation
+// indicator. Creates a slice of numbers and "|" characters equal to n-1 number
+// of rows. Ex.: [ 123 1234 | 456 4567 ].
 func CleanInput(inputText string) ([]string, error) {
 	var outputBuff []string
 	if strings.Contains(inputText, "|") {
@@ -98,11 +91,13 @@ func CleanInput(inputText string) ([]string, error) {
 	}
 	for txt := range strings.FieldsSeq(inputText) {
 		if strings.Contains(txt, "///") {
-			outputBuff = append(outputBuff, strings.Replace(txt, "///", "", -1), "///")
+			outputBuff = append(outputBuff,
+				strings.Replace(txt, "///", "", -1), "///")
 			break
 		}
 		if strings.Contains(txt, "|") {
-			outputBuff = append(outputBuff, strings.Replace(txt, "|", "", -1), "|")
+			outputBuff = append(outputBuff,
+				strings.Replace(txt, "|", "", -1), "|")
 			continue
 		}
 		if _, ok := new(big.Rat).SetString(txt); !ok {
